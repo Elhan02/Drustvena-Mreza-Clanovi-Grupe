@@ -79,7 +79,7 @@ namespace DrustvenaMreza.Controllers
             return NoContent();
         }
 
-        public int CreateNewId(List<int> identificators)
+        private int CreateNewId(List<int> identificators)
         {
             int maxId = 0;
             foreach (int id in identificators)
