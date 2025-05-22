@@ -9,8 +9,6 @@ namespace DrustvenaMreza.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-        public class ValuesController : ControllerBase
-        {
             GroupRepository groupRepository = new GroupRepository();
 
             [HttpGet]
@@ -89,6 +87,5 @@ namespace DrustvenaMreza.Controllers
                 }
                 return maxId + 1;
             }
-        }
     }
 }

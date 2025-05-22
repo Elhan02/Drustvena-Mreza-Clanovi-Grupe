@@ -21,7 +21,7 @@ namespace DrustvenaMreza.Controllers
             }
             List<User> users = UserRepository.data.Values.ToList();
             List<User> groupUser = new List<User>();
-            foreach (User user in users) 
+            foreach (User user in users)
             {
                 foreach (Group group in user.Groups)
                 {
@@ -29,9 +29,56 @@ namespace DrustvenaMreza.Controllers
                     {
                         groupUser.Add(user);
                     }
-                }                
+                }
             }
             return Ok(groupUser);
         }
+
+        [HttpPut("{userId}")]
+        public ActionResult<User> GroupUserAdd(int groupId, int userId)
+        {
+            if (!GroupRepository.Data.ContainsKey(groupId))
+            {
+                return NotFound("Group not found.");
+            }
+            if (!UserRepository.data.ContainsKey(userId))
+            {
+                return NotFound("User not found.");
+            }
+            Group group = GroupRepository.Data[groupId];
+            User user = UserRepository.data[userId];
+
+            user.Groups.Add(group);
+            userRepository.Save();
+
+            return Ok(user);
+        }
+
+        [HttpDelete("{userId}")]
+        public ActionResult GroupUserDelete(int groupId, int userId)
+        {
+            if (!GroupRepository.Data.ContainsKey(groupId))
+            {
+                return NotFound("Group not found.");
+            }
+            if (!UserRepository.data.ContainsKey(userId))
+            {
+                return NotFound("User not found.");
+            }
+            Group group = GroupRepository.Data[groupId];
+            User user = UserRepository.data[userId];
+
+            if (user.Groups.Contains(group))
+            {
+                user.Groups.Remove(group);
+            }
+            userRepository.Save();
+            
+            return NoContent();
+        }
+        
+
+
+
     }
 }
