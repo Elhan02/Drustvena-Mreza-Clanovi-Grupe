@@ -11,6 +11,7 @@ namespace DrustvenaMreza.Controllers
     public class UserController : ControllerBase
     {
         UserRepository userRepository = new UserRepository();
+        GroupRepository groupRepository = new GroupRepository();
 
         [HttpGet]
         public ActionResult<List<User>> GetAll()

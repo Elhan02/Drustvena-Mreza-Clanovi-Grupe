@@ -1,4 +1,5 @@
-﻿using DrustvenaMreza.Repositories;
+﻿using DrustvenaMreza.Models;
+using DrustvenaMreza.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
