@@ -48,6 +48,11 @@ namespace DrustvenaMreza.Controllers
             Group group = GroupRepository.Data[groupId];
             User user = UserRepository.data[userId];
 
+            if (user.Groups.Contains(group))
+            {
+                return Conflict();
+            }
+
             user.Groups.Add(group);
             userRepository.Save();
 

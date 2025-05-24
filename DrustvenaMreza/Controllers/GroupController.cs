@@ -18,16 +18,6 @@ namespace DrustvenaMreza.Controllers
                 return Ok(groups);
             }
 
-            [HttpGet("{id}")]
-            public ActionResult<Group> GetById(int id)
-            {
-                if (!GroupRepository.Data.ContainsKey(id))
-                {
-                    return NotFound();
-                }
-                return Ok(GroupRepository.Data[id]);
-            }
-
             [HttpPost]
             public ActionResult<Group> CreateGroup([FromBody] Group newGroup)
             {
@@ -43,32 +33,19 @@ namespace DrustvenaMreza.Controllers
 
             }
 
-            [HttpPut("{id}")]
-            public ActionResult<Group> UpdateGroup(int id, [FromBody] Group uGroup)
-            {
-                if (String.IsNullOrWhiteSpace(uGroup.Name))
-                {
-                    return BadRequest();
-                }
-
-                if (!GroupRepository.Data.ContainsKey(id))
-                {
-                    return NotFound();
-                }
-
-                Group group = GroupRepository.Data[id];
-                group.Name = uGroup.Name;
-                groupRepository.Save();
-
-                return Ok(group);
-            }
-
             [HttpDelete("{id}")]
             public ActionResult DeleteGroup(int id)
             {
                 if (!GroupRepository.Data.ContainsKey(id))
                 {
                     return NotFound();
+                }
+                foreach (User user in UserRepository.data.Values)
+                {
+                    if (user.Groups.Contains(GroupRepository.Data[id]))
+                    {
+                        user.Groups.Remove(GroupRepository.Data[id]);
+                    }
                 }
                 GroupRepository.Data.Remove(id);
                 groupRepository.Save();
