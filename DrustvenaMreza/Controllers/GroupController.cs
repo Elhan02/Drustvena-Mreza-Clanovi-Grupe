@@ -10,12 +10,19 @@ namespace DrustvenaMreza.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
+            public GroupDbRepository GroupDataBase { get; set; }
+
+            public GroupController()
+            {
+                GroupDataBase = new GroupDbRepository();
+            }
+
             GroupRepository groupRepository = new GroupRepository();
 
             [HttpGet]
             public ActionResult<List<Group>> GetAll()
             {
-                List<Group> groups = GetAllFromDatabase();
+                List<Group> groups = GroupDataBase.GetAll();
                 return Ok(groups);
             }
 
@@ -65,50 +72,5 @@ namespace DrustvenaMreza.Controllers
                 }
                 return maxId + 1;
             }
-
-        private List<Group> GetAllFromDatabase()
-        {
-            List<Group> groups = new List<Group>();
-
-            try
-            {
-                using SqliteConnection connection = new SqliteConnection("Data Source=database/data.db");
-                connection.Open();
-
-                string query = "SELECT * FROM Groups";
-                using SqliteCommand command = new SqliteCommand(query, connection);
-
-                using SqliteDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    int id = Convert.ToInt32(reader["Id"]);
-                    string name = reader["Name"].ToString();
-                    DateTime creationDate = Convert.ToDateTime(reader["CreationDate"]);
-
-                    groups.Add(new Group(id, name, creationDate));
-
-                }
-            }
-            catch (SqliteException ex)
-            {
-                Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
-            }
-            catch (FormatException ex)
-            {
-                Console.WriteLine("Error while converting data from database: " + ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Unexpected error: " + ex.Message);
-            }
-            return groups;
-
-
-        }
     }
 }
