@@ -17,8 +17,6 @@ namespace DrustvenaMreza.Controllers
                 GroupDataBase = new GroupDbRepository();
             }
 
-            GroupRepository groupRepository = new GroupRepository();
-
             [HttpGet]
             public ActionResult<List<Group>> GetAll()
             {
@@ -36,51 +34,46 @@ namespace DrustvenaMreza.Controllers
                 return Ok(GroupDataBase.GetById(id));
         }
 
-        [HttpPost]
+            [HttpPost]
             public ActionResult<Group> CreateGroup([FromBody] Group newGroup)
             {
                 if (String.IsNullOrWhiteSpace(newGroup.Name) || String.IsNullOrWhiteSpace(newGroup.DateCreated.ToString()))
                 {
                     return BadRequest();
                 }
-                newGroup.Id = GetMaxId(GroupRepository.Data.Keys.ToList());
-                GroupRepository.Data[newGroup.Id] = newGroup;
-                groupRepository.Save();
+                int rowNumber = GroupDataBase.Create(newGroup);
+                newGroup.Id = rowNumber;
 
                 return Ok(newGroup);
 
             }
 
-            [HttpDelete("{id}")]
-            public ActionResult DeleteGroup(int id)
+            [HttpPut("{id}")]
+            public ActionResult<Group> UpdateGroup(int id, [FromBody] Group uGroup)
             {
-                if (!GroupRepository.Data.ContainsKey(id))
+                if (String.IsNullOrWhiteSpace(uGroup.Name))
+                {
+                    return BadRequest();
+                }
+
+                if (GroupDataBase.Update(id, uGroup) == 0)
                 {
                     return NotFound();
                 }
-                foreach (User user in UserRepository.data.Values)
-                {
-                    if (user.Groups.Contains(GroupRepository.Data[id]))
-                    {
-                        user.Groups.Remove(GroupRepository.Data[id]);
-                    }
-                }
-                GroupRepository.Data.Remove(id);
-                groupRepository.Save();
-                return NoContent();
+
+                uGroup.Id = id;
+                return Ok(uGroup);
             }
 
-            private int GetMaxId(List<int> ids)
+        [HttpDelete("{id}")]
+            public ActionResult DeleteGroup(int id)
             {
-                int maxId = 0;
-                foreach (int id in ids)
+                if (GroupDataBase.Delete(id) == 0)
                 {
-                    if (id > maxId)
-                    {
-                        maxId = id;
-                    }
+                    return NotFound();
                 }
-                return maxId + 1;
+                
+                return NoContent();
             }
     }
 }
