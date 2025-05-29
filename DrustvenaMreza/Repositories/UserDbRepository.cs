@@ -6,6 +6,7 @@ namespace DrustvenaMreza.Repositories
     public class UserDbRepository
     {
         private const string datapath = "Data Source=database/data.db";
+
         public List<User> GetAllFromDatabase()
         {
             List<User> users = new List<User>();
