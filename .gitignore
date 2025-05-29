@@ -401,4 +401,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 #database directory
-DrustvenaMreza/database/
+DrustvenaMreza/database/*

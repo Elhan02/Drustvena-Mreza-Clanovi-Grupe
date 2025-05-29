@@ -11,67 +11,31 @@ namespace DrustvenaMreza.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        UserRepository userRepository = new UserRepository();
-        GroupRepository groupRepository = new GroupRepository();
+        public UserDbRepository DbRepository { get; set; }
+
+        public UserController()
+        {
+            DbRepository = new UserDbRepository();
+        }
+
 
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
-            List<User> Users = GetAllFromDatabase();
+            List<User> Users = DbRepository.GetAllFromDatabase();
             return Ok(Users);
         }
 
-        private List<User> GetAllFromDatabase()
-        {
-            List<User> users = new List<User>();
-            try
-            {
-                using SqliteConnection connection = new SqliteConnection("Data Source=database/data.db");
-                connection.Open();
-
-                string query = "SELECT * FROM Users";
-                using SqliteCommand command = new SqliteCommand(query, connection);
-
-                using SqliteDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    int id = Convert.ToInt32(reader["Id"]);
-                    string username = Convert.ToString(reader["Username"]);
-                    string name = Convert.ToString(reader["Name"]);
-                    string lastname = Convert.ToString(reader["Surname"]);
-                    DateTime birthdate = Convert.ToDateTime(reader["Birthday"]);
-                    users.Add(new User(id, username, name, lastname, birthdate));
-
-                }
-            }
-            catch (SqliteException ex)
-            {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili izvrsavanju neispravnih SQL naredbi: {ex.Message}");
-            }
-            catch (FormatException ex)
-            {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze podataka: {ex.Message}");
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine($"Konekcija nije otvorena ili je otvorena vise puta: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Neocekivana greska:{ex.Message}");
-            }
-            return users;
-        }       
+        
 
         [HttpGet("{id}")]
         public ActionResult<User> GetById(int id)
         {
-            if (!UserRepository.data.ContainsKey(id))
+            if (DbRepository.GetById(id) == null)
             {
                 return NotFound();
             }
-            return Ok(UserRepository.data[id]);
+            return Ok(DbRepository.GetById(id));
         }
 
         [HttpPost]
@@ -84,7 +48,7 @@ namespace DrustvenaMreza.Controllers
             }
             nUser.Id = CreateNewId(UserRepository.data.Keys.ToList());
             UserRepository.data[nUser.Id] = nUser;
-            userRepository.Save();
+            //userRepository.Save();
 
             return Ok(nUser);
         }
@@ -105,7 +69,7 @@ namespace DrustvenaMreza.Controllers
             user.Name = uUser.Name;
             user.Lastname = uUser.Lastname;
             user.Birthdate = uUser.Birthdate;
-            userRepository.Save();
+            //userRepository.Save();
 
             return Ok(user);
         }
@@ -118,7 +82,7 @@ namespace DrustvenaMreza.Controllers
                 return NotFound();
             }
             UserRepository.data.Remove(id);
-            userRepository.Save();
+            //userRepository.Save();
 
             return NoContent();
         }
