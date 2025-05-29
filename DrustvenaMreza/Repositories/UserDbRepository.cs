@@ -59,7 +59,7 @@ namespace DrustvenaMreza.Repositories
                 string query = "SELECT * FROM Users WHERE Id=@Id";
                 using SqliteCommand command = new SqliteCommand(@query, connection);
 
-                command.Parameters.AddWithValue("id", id);
+                command.Parameters.AddWithValue("Id", id);
 
                 using SqliteDataReader reader = command.ExecuteReader();
 
