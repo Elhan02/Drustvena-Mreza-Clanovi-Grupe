@@ -18,15 +18,12 @@ namespace DrustvenaMreza.Controllers
             DbRepository = new UserDbRepository();
         }
 
-
         [HttpGet]
         public ActionResult<List<User>> GetAll()
         {
             List<User> Users = DbRepository.GetAllFromDatabase();
             return Ok(Users);
         }
-
-        
 
         [HttpGet("{id}")]
         public ActionResult<User> GetById(int id)
@@ -46,10 +43,8 @@ namespace DrustvenaMreza.Controllers
             {
                 return BadRequest();
             }
-            nUser.Id = CreateNewId(UserRepository.data.Keys.ToList());
-            UserRepository.data[nUser.Id] = nUser;
-            //userRepository.Save();
-
+            int rowId = DbRepository.Create(nUser);
+            nUser.Id = rowId;
             return Ok(nUser);
         }
 
@@ -60,46 +55,24 @@ namespace DrustvenaMreza.Controllers
             {
                 return BadRequest();
             }
-            if (!UserRepository.data.ContainsKey(id))
+            if (DbRepository.Update(id, uUser) == 0)
             {
                 return NotFound();
             }
-            User user = UserRepository.data[id];
-            user.UserName = uUser.UserName;
-            user.Name = uUser.Name;
-            user.Lastname = uUser.Lastname;
-            user.Birthdate = uUser.Birthdate;
-            //userRepository.Save();
-
-            return Ok(user);
+            uUser.Id = id;
+            return Ok(uUser);
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            if (!UserRepository.data.ContainsKey(id))
+            if (DbRepository.Delete(id)==0)
             {
                 return NotFound();
             }
-            UserRepository.data.Remove(id);
-            //userRepository.Save();
 
             return NoContent();
-        }
-
-        private int CreateNewId(List<int> identificators)
-        {
-            int maxId = 0;
-            foreach (int id in identificators)
-            {
-                if (maxId < id)
-                {
-                    maxId = id;
-                }
-            }
-            return maxId + 1;
-        }
-
+        }        
     }
 }
 
