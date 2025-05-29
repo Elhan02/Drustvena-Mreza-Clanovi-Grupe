@@ -26,7 +26,17 @@ namespace DrustvenaMreza.Controllers
                 return Ok(groups);
             }
 
-            [HttpPost]
+            [HttpGet("{id}")]
+            public ActionResult<Group> GetById(int id)
+            {
+                if (GroupDataBase.GetById(id) == null)
+                {
+                    return NotFound();
+                }
+                return Ok(GroupDataBase.GetById(id));
+        }
+
+        [HttpPost]
             public ActionResult<Group> CreateGroup([FromBody] Group newGroup)
             {
                 if (String.IsNullOrWhiteSpace(newGroup.Name) || String.IsNullOrWhiteSpace(newGroup.DateCreated.ToString()))
