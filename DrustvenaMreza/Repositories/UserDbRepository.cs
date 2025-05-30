@@ -5,14 +5,19 @@ namespace DrustvenaMreza.Repositories
 {
     public class UserDbRepository
     {
-        private const string datapath = "Data Source=database/data.db";
+        private readonly string connectionString;
+
+        public UserDbRepository(IConfiguration configuration)
+        {
+            connectionString = configuration["ConnectionStrings:SQLiteConnection"];
+        }
 
         public List<User> GetAllFromDatabase()
         {
             List<User> users = new List<User>();
             try
             {
-                using SqliteConnection connection = new SqliteConnection(datapath);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "SELECT * FROM Users";
@@ -34,18 +39,22 @@ namespace DrustvenaMreza.Repositories
             catch (SqliteException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konekciji ili izvrsavanju neispravnih SQL naredbi: {ex.Message}");
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze podataka: {ex.Message}");
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"Konekcija nije otvorena ili je otvorena vise puta: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Neocekivana greska:{ex.Message}");
+                throw;
             }
             return users;
         }
@@ -54,7 +63,7 @@ namespace DrustvenaMreza.Repositories
         {
             try
             {
-                using SqliteConnection connection = new SqliteConnection(datapath);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "SELECT * FROM Users WHERE Id=@Id";
@@ -71,33 +80,38 @@ namespace DrustvenaMreza.Repositories
                     string name = Convert.ToString(reader["Name"]);
                     string lastname = Convert.ToString(reader["Surname"]);
                     DateTime birthdate = Convert.ToDateTime(reader["Birthday"]);
-                    return new User(UserId, username, name, lastname, birthdate);
+                    User newUser = new User(UserId, username, name, lastname, birthdate);
                 }
+
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine($"Greska se desila pri konekciji ili pri izvrsavanju neispravnih SQL naredbi:{ex.Message}");
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"Konekcija je otvorena vise puta ili nije otvorena: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Neocekivana greska: {ex.Message}");
+                throw;
             }
             return null;
         }
 
-        public int Create(User nUser)
+        public User Create(User nUser)
         {
             try
             {
-                using SqliteConnection connection = new SqliteConnection(datapath);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = @"INSERT INTO Users (Username, Name, Surname, Birthday) VALUES(@Username, @Name, @Surname,@Birthday); SELECT LAST_INSERT_ROWID();";
@@ -108,71 +122,77 @@ namespace DrustvenaMreza.Repositories
                 command.Parameters.AddWithValue("@Surname", nUser.Lastname);
                 command.Parameters.AddWithValue("@Birthday", nUser.Birthdate.ToString("yyyy-MM-dd"));
 
-                int lastInsertedRowId = Convert.ToInt32(command.ExecuteScalar());
-                return lastInsertedRowId;
+                nUser.Id = Convert.ToInt32(command.ExecuteScalar());
+                return nUser;
 
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"Greska se desila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"Konekcija nije otvorena ili je otvorena vise puta: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Neocekivana greska: {ex.Message}");
+                throw;
             }
-            return 0;
         }
-        public int Update(int id, User uUser)
-        {
+        public User Update(User uUser)
+        {           
             try
             {
-                using SqliteConnection connection = new SqliteConnection(datapath);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "UPDATE Users SET Username = @Username, Name = @Name, Surname = @Surname, Birthday = @Birthday WHERE Id = @Id";
+                string query = "UPDATE Users SET  = @Username, Name = @Name, Surname = @Surname, Birthday = @Birthday WHERE Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
 
-                command.Parameters.AddWithValue("@Id", id);
+                command.Parameters.AddWithValue("@Id", uUser.Id);
                 command.Parameters.AddWithValue("@Username", uUser.UserName);
                 command.Parameters.AddWithValue("@Name", uUser.Name);
                 command.Parameters.AddWithValue("@Surname", uUser.Lastname);
                 command.Parameters.AddWithValue("@Birthday", uUser.Birthdate.ToString("yyyy-MM-dd"));
 
                 int rowsAffected = command.ExecuteNonQuery();
-                return rowsAffected;
+                return rowsAffected > 0 ? uUser : null;
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Neocekivana greska{ex.Message}");
+                throw;
             }
-            return 0;
         }
 
-        public int Delete(int id)
+        public bool Delete(int id)
         {
             try
             {
-                using SqliteConnection connection = new SqliteConnection(datapath);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "DELETE FROM Users WHERE Id=@Id";
@@ -181,25 +201,28 @@ namespace DrustvenaMreza.Repositories
                 command.Parameters.AddWithValue("@Id", id);
 
                 int rowsAffected = command.ExecuteNonQuery();
-                return rowsAffected;
+                return rowsAffected > 0;
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Neocekivana greska{ex.Message}");
+                throw;
             }
-            return 0;
         }
     }
 }

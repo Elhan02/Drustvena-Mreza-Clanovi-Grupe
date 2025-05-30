@@ -13,26 +13,42 @@ namespace DrustvenaMreza.Controllers
     {
         public UserDbRepository DbRepository { get; set; }
 
-        public UserController()
+        public UserController(IConfiguration configuration)
         {
-            DbRepository = new UserDbRepository();
+            DbRepository = new UserDbRepository(configuration);
         }
 
         [HttpGet]
-        public ActionResult<List<User>> GetAll()
+        public ActionResult GetAll()
         {
-            List<User> Users = DbRepository.GetAllFromDatabase();
-            return Ok(Users);
+
+            try
+            {
+                List<User> Users = DbRepository.GetAllFromDatabase();
+                return Ok(Users);
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occured while fetching users.");
+            }
         }
 
         [HttpGet("{id}")]
         public ActionResult<User> GetById(int id)
         {
-            if (DbRepository.GetById(id) == null)
+            try
             {
-                return NotFound();
+                User user = DbRepository.GetById(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
             }
-            return Ok(DbRepository.GetById(id));
+            catch (Exception ex)
+            {
+                return Problem("An error occured while fetching user.");
+            }
         }
 
         [HttpPost]
@@ -43,9 +59,17 @@ namespace DrustvenaMreza.Controllers
             {
                 return BadRequest();
             }
-            int rowId = DbRepository.Create(nUser);
-            nUser.Id = rowId;
-            return Ok(nUser);
+
+            try
+            {
+                User user = DbRepository.Create(nUser);
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occured while creating  new user");
+            }
         }
 
         [HttpPut("{id}")]
@@ -55,24 +79,41 @@ namespace DrustvenaMreza.Controllers
             {
                 return BadRequest();
             }
-            if (DbRepository.Update(id, uUser) == 0)
+            try
             {
-                return NotFound();
+                uUser.Id = id;
+                User user = DbRepository.Update(uUser);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
             }
-            uUser.Id = id;
-            return Ok(uUser);
+            catch (Exception ex)
+            {
+                return Problem("An error occured while updating user.");
+            }
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            if (DbRepository.Delete(id)==0)
+            try
             {
-                return NotFound();
-            }
+                bool deletedUser = DbRepository.Delete(id);
+                if (deletedUser)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
-        }        
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occured while removing user.");
+            }
+        }
     }
 }
 
