@@ -10,70 +10,107 @@ namespace DrustvenaMreza.Controllers
     [ApiController]
     public class GroupController : ControllerBase
     {
-            public GroupDbRepository GroupDataBase { get; set; }
+        public GroupDbRepository GroupDataBase { get; set; }
 
-            public GroupController()
-            {
-                GroupDataBase = new GroupDbRepository();
-            }
+        public GroupController(IConfiguration configuration)
+        {
+            GroupDataBase = new GroupDbRepository(configuration);
+        }
 
-            [HttpGet]
-            public ActionResult<List<Group>> GetAll()
+        [HttpGet]
+        public ActionResult<List<Group>> GetAll()
+        {
+            try
             {
                 List<Group> groups = GroupDataBase.GetAll();
                 return Ok(groups);
             }
-
-            [HttpGet("{id}")]
-            public ActionResult<Group> GetById(int id)
+            catch (Exception ex)
             {
-                if (GroupDataBase.GetById(id) == null)
-                {
-                    return NotFound();
-                }
-                return Ok(GroupDataBase.GetById(id));
+                return Problem("An error occurred while fetching groups.");
+            }
         }
 
-            [HttpPost]
-            public ActionResult<Group> CreateGroup([FromBody] Group newGroup)
+        [HttpGet("{id}")]
+        public ActionResult<Group> GetById(int id)
+        {
+            try
             {
-                if (String.IsNullOrWhiteSpace(newGroup.Name) || String.IsNullOrWhiteSpace(newGroup.DateCreated.ToString()))
+                Group group = GroupDataBase.GetById(id);
+                if (group == null)
                 {
-                    return BadRequest();
+                    return NotFound($"Group with ID {id} not found.");
                 }
+                return Ok(group);
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occurred while fetching the group.");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult<Group> CreateGroup([FromBody] Group newGroup)
+        {
+            if (newGroup == null || String.IsNullOrWhiteSpace(newGroup.Name) || String.IsNullOrWhiteSpace(newGroup.DateCreated.ToString()))
+            {
+                return BadRequest("Invalid group data");
+            }
+
+            try 
+            { 
                 int rowNumber = GroupDataBase.Create(newGroup);
                 newGroup.Id = rowNumber;
 
                 return Ok(newGroup);
-
             }
-
-            [HttpPut("{id}")]
-            public ActionResult<Group> UpdateGroup(int id, [FromBody] Group uGroup)
+            catch (Exception ex)
             {
-                if (String.IsNullOrWhiteSpace(uGroup.Name))
-                {
-                    return BadRequest();
-                }
-
-                if (GroupDataBase.Update(id, uGroup) == 0)
-                {
-                    return NotFound();
-                }
-
-                uGroup.Id = id;
-                return Ok(uGroup);
+                return Problem("An error occurred while creating group.");
             }
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<Group> UpdateGroup(int id, [FromBody] Group uGroup)
+        {
+            if (uGroup == null || String.IsNullOrWhiteSpace(uGroup.Name))
+            {
+                return BadRequest("Invalid group data.");
+            }
+
+            try
+            {
+                uGroup.Id = id;
+                Group group = GroupDataBase.Update(uGroup);
+                if (group == null)
+                {
+                    return NotFound($"Group with ID {id} not found.");
+                }
+                return Ok(group);
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occurred while updating group.");
+            }
+        }
 
         [HttpDelete("{id}")]
-            public ActionResult DeleteGroup(int id)
+        public ActionResult DeleteGroup(int id)
+        {
+            try
             {
-                if (GroupDataBase.Delete(id) == 0)
+                bool isDeleted = GroupDataBase.Delete(id);
+                if (isDeleted)
                 {
-                    return NotFound();
+                    return NoContent();
                 }
-                
-                return NoContent();
+
+                return NotFound($"Group with ID {id} not found.");
             }
+            catch (Exception ex)
+            {
+                return Problem("An error occurred while deleting group.");
+            }
+        }
     }
 }

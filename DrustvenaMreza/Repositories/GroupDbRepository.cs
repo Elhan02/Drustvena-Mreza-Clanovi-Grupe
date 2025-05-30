@@ -5,7 +5,12 @@ namespace DrustvenaMreza.Repositories
 {
     public class GroupDbRepository
     {
-        private const string path = "Data Source=database/data.db";
+        private readonly string connectionString;
+
+        public GroupDbRepository(IConfiguration configuration)
+        {
+            connectionString = configuration["ConnectionStrings:SQLiteConnection"];
+        }
 
         public List<Group> GetAll()
         {
@@ -13,7 +18,7 @@ namespace DrustvenaMreza.Repositories
 
             try
             {
-                using SqliteConnection connection = new SqliteConnection(path);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "SELECT * FROM Groups";
@@ -34,18 +39,22 @@ namespace DrustvenaMreza.Repositories
             catch (SqliteException ex)
             {
                 Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
             }
             return groups;
         }
@@ -55,12 +64,12 @@ namespace DrustvenaMreza.Repositories
 
             try
             {
-                using SqliteConnection connection = new SqliteConnection(path);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "SELECT * FROM Groups WHERE Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
-                command.Parameters.AddWithValue("Id", id);
+                command.Parameters.AddWithValue("@Id", id);
 
                 using SqliteDataReader reader = command.ExecuteReader();
 
@@ -77,18 +86,22 @@ namespace DrustvenaMreza.Repositories
             catch (SqliteException ex)
             {
                 Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
             }
             return null;
         }
@@ -98,100 +111,101 @@ namespace DrustvenaMreza.Repositories
             int lastId = 0;
             try
             {
-                using SqliteConnection connection = new SqliteConnection(path);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "INSERT INTO Groups (Name, CreationDate) VALUES (@Name, @CreationDate); SELECT LAST_INSERT_ROWID();";
                 using SqliteCommand command = new SqliteCommand(query, connection);
-                command.Parameters.AddWithValue("Name", newGroup.Name);
-                command.Parameters.AddWithValue("CreationDate", newGroup.DateCreated.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@Name", newGroup.Name);
+                command.Parameters.AddWithValue("@CreationDate", newGroup.DateCreated.ToString("yyyy-MM-dd"));
 
                 lastId = Convert.ToInt32(command.ExecuteScalar());
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
+                throw;
             }
             catch (FormatException ex)
             {
                 Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
             }
             return lastId;
         }
 
-        public int Update(int id, Group group)
+        public Group Update(Group group)
         {
-            int rowsAffected = 0;
             try
             {
-                using SqliteConnection connection = new SqliteConnection(path);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "UPDATE Groups SET Name = @Name WHERE Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
-                command.Parameters.AddWithValue("Name", group.Name);
-                command.Parameters.AddWithValue("Id", id);
+                command.Parameters.AddWithValue("@Name", group.Name);
+                command.Parameters.AddWithValue("@Id", group.Id);
                 
-                rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0 ? group : null;
+                
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
-            }
-            catch (FormatException ex)
-            {
-                Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
             }
-            return rowsAffected;
         }
 
-        public int Delete(int id)
+        public bool Delete(int id)
         {
-            int rowsAffected = 0;
             try
             {
-                using SqliteConnection connection = new SqliteConnection(path);
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
                 string query = "DELETE FROM Groups WHERE Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
-                command.Parameters.AddWithValue("Id", id);
+                command.Parameters.AddWithValue("@Id", id);
 
-                rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
             }
             catch (SqliteException ex)
             {
                 Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
-            }
-            catch (FormatException ex)
-            {
-                Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
             }
-            return rowsAffected;
         }
 
     }
