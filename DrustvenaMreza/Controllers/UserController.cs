@@ -19,17 +19,29 @@ namespace DrustvenaMreza.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and pageSize must be greater than zero.");
+            }
 
             try
             {
-                List<User> Users = DbRepository.GetAllFromDatabase();
-                return Ok(Users);
+                List<User> Users = DbRepository.GetPaged(page, pageSize);
+                int totalCount = DbRepository.CountAll();
+                Object result = new
+                {
+                    Data = Users,
+                    TotalCount = totalCount
+                };
+                return Ok(result);
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return Problem("An error occured while fetching users.");
+                
             }
         }
 

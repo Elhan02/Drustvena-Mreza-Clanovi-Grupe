@@ -12,7 +12,7 @@ namespace DrustvenaMreza.Repositories
             connectionString = configuration["ConnectionStrings:SQLiteConnection"];
         }
 
-        public List<User> GetAllFromDatabase()
+        public List<User> GetPaged(int page, int pageSize)
         {
             List<User> users = new List<User>();
             try
@@ -20,8 +20,11 @@ namespace DrustvenaMreza.Repositories
                 using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT * FROM Users";
+                string query = "SELECT * FROM Users LIMIT @LIMIT OFFSET @OFFSET";
                 using SqliteCommand command = new SqliteCommand(query, connection);
+
+                command.Parameters.AddWithValue("@LIMIT", pageSize);
+                command.Parameters.AddWithValue("@OFFSET", pageSize * (page - 1));
 
                 using SqliteDataReader reader = command.ExecuteReader();
 
@@ -69,7 +72,7 @@ namespace DrustvenaMreza.Repositories
                 string query = "SELECT * FROM Users WHERE Id=@Id";
                 using SqliteCommand command = new SqliteCommand(@query, connection);
 
-                command.Parameters.AddWithValue("Id", id);
+                command.Parameters.AddWithValue("@Id", id);
 
                 using SqliteDataReader reader = command.ExecuteReader();
 
@@ -81,8 +84,9 @@ namespace DrustvenaMreza.Repositories
                     string lastname = Convert.ToString(reader["Surname"]);
                     DateTime birthdate = Convert.ToDateTime(reader["Birthday"]);
                     User newUser = new User(UserId, username, name, lastname, birthdate);
+                    return newUser;
                 }
-
+                return null;
             }
             catch (SqliteException ex)
             {
@@ -104,7 +108,6 @@ namespace DrustvenaMreza.Repositories
                 Console.WriteLine($"Neocekivana greska: {ex.Message}");
                 throw;
             }
-            return null;
         }
 
         public User Create(User nUser)
@@ -148,7 +151,7 @@ namespace DrustvenaMreza.Repositories
             }
         }
         public User Update(User uUser)
-        {           
+        {
             try
             {
                 using SqliteConnection connection = new SqliteConnection(connectionString);
@@ -186,6 +189,7 @@ namespace DrustvenaMreza.Repositories
                 Console.WriteLine($"Neocekivana greska{ex.Message}");
                 throw;
             }
+            return null;
         }
 
         public bool Delete(int id)
@@ -202,6 +206,42 @@ namespace DrustvenaMreza.Repositories
 
                 int rowsAffected = command.ExecuteNonQuery();
                 return rowsAffected > 0;
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                throw;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Neocekivana greska{ex.Message}");
+                throw;
+            }
+        }
+
+        public int CountAll()
+        {
+            try
+
+            {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = "SELECT COUNT(*) FROM Users;";
+                using SqliteCommand command = new SqliteCommand(query, connection);
+
+                int countRows = Convert.ToInt32(command.ExecuteScalar());
+                return countRows;
             }
             catch (SqliteException ex)
             {
