@@ -12,7 +12,43 @@ namespace DrustvenaMreza.Repositories
             connectionString = configuration["ConnectionStrings:SQLiteConnection"];
         }
 
-        public List<Group> GetAll()
+        public int CountAll()
+        {
+            try
+
+            {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = "SELECT COUNT(*) FROM Groups;";
+                using SqliteCommand command = new SqliteCommand(query, connection);
+
+                int countRows = Convert.ToInt32(command.ExecuteScalar());
+                return countRows;
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
+                throw;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine("Error while converting data from database: " + ex.Message);
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
+            }
+        }
+
+        public List<Group> GetPaged(int page, int pageSize)
         {
             List<Group> groups = new List<Group>();
 
@@ -21,8 +57,11 @@ namespace DrustvenaMreza.Repositories
                 using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT * FROM Groups";
+                string query = "SELECT * FROM Groups LIMIT @Limit OFFSET @Offset ";
                 using SqliteCommand command = new SqliteCommand(query, connection);
+
+                command.Parameters.AddWithValue("@Limit", pageSize);
+                command.Parameters.AddWithValue("@Offset", pageSize * (page - 1));
 
                 using SqliteDataReader reader = command.ExecuteReader();
 

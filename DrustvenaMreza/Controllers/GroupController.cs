@@ -1,7 +1,9 @@
 ﻿using DrustvenaMreza.Models;
 using DrustvenaMreza.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.Sqlite;
 
 namespace DrustvenaMreza.Controllers
@@ -18,12 +20,24 @@ namespace DrustvenaMreza.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Group>> GetAll()
+        public ActionResult GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and Page size must be greater than zero.");
+            }
+
             try
             {
-                List<Group> groups = GroupDataBase.GetAll();
-                return Ok(groups);
+                List<Group> groups = GroupDataBase.GetPaged(page, pageSize);
+                int countRows = GroupDataBase.CountAll();
+
+                object result = new
+                {
+                    Data = groups,
+                    Total = countRows
+                };
+                return Ok(result);
             }
             catch (Exception ex)
             {
