@@ -81,9 +81,5 @@ namespace DrustvenaMreza.Controllers
             
             return NoContent();
         }
-        
-
-
-
     }
 }
