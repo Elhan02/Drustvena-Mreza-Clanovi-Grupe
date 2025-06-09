@@ -2,6 +2,7 @@
 using DrustvenaMreza.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 
 namespace DrustvenaMreza.Controllers
 {
@@ -11,11 +12,13 @@ namespace DrustvenaMreza.Controllers
     {
         private GroupDbRepository GroupRepo { get; set; }
         private UserDbRepository UserRepo { get; set; }
+        private GroupMembershipDbRepository MembershipRepo { get; set; }
 
         public GroupUserController(IConfiguration configuration)
         {
             GroupRepo = new GroupDbRepository(configuration);
             UserRepo = new UserDbRepository(configuration);
+            MembershipRepo = new GroupMembershipDbRepository(configuration);
         }
 
         GroupRepository groupRepository = new GroupRepository();
@@ -35,26 +38,43 @@ namespace DrustvenaMreza.Controllers
         [HttpPut("{userId}")]
         public ActionResult<User> GroupUserAdd(int groupId, int userId)
         {
-            if (!GroupRepository.Data.ContainsKey(groupId))
+            try
             {
-                return NotFound("Group not found.");
+                Group? group = GroupRepo.GetById(groupId);
+                User? user = UserRepo.GetById(userId);
+
+                if (group == null)
+                {
+                    return NotFound("Group not found.");
+                }
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                int countRows = MembershipRepo.AddUserToGroup(groupId, userId);
+                group.Users.Add(user);
+
+                object result = new
+                {
+                    Data = group,
+                    Total = countRows
+                };
+
+                return Ok(result);
             }
-            if (!UserRepository.data.ContainsKey(userId))
+            catch (SqliteException ex)
             {
-                return NotFound("User not found.");
+                if (ex.SqliteErrorCode == 19)
+                {
+                    return Problem("User is already in group.");
+                }
+                return Problem("An error occurred while adding user to group.");
             }
-            Group group = GroupRepository.Data[groupId];
-            User user = UserRepository.data[userId];
-
-            if (group.Users.Contains(user))
+            catch (Exception ex)
             {
-                return Conflict();
+                return Problem("An error occurred while adding user to group.");
             }
-
-            group.Users.Add(user);
-            userRepository.Save();
-
-            return Ok(group);
         }
 
         [HttpDelete("{userId}")]
