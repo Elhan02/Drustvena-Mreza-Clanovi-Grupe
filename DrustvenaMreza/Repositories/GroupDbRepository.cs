@@ -1,5 +1,6 @@
 ﻿using DrustvenaMreza.Models;
 using Microsoft.Data.Sqlite;
+using System.Xml.Linq;
 
 namespace DrustvenaMreza.Repositories
 {
@@ -106,21 +107,45 @@ namespace DrustvenaMreza.Repositories
                 using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT * FROM Groups WHERE Id = @Id";
+                string query = @"SELECT  g.Id, g.Name, g.CreationDate, u.Id AS UserId, u.Username AS Username, 
+                               u.Name AS Firstname, u.Surname AS Lastname, u.Birthday AS UserBirthDate
+                               FROM Groups g
+                               LEFT JOIN GroupMemberships gm ON g.Id = gm.GroupId
+                               LEFT JOIN Users u ON gm.UserId = u.Id
+                               WHERE g.Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
                 command.Parameters.AddWithValue("@Id", id);
 
                 using SqliteDataReader reader = command.ExecuteReader();
 
+                Group group = null;
+
                 while (reader.Read())
                 {
-                    int groupId = Convert.ToInt32(reader["Id"]);
-                    string name = reader["Name"].ToString();
-                    DateTime creationDate = Convert.ToDateTime(reader["CreationDate"]);
-
-                    return new Group(groupId, name, creationDate);
+                    if (group == null)
+                    {
+                        group = new Group
+                        (
+                            Convert.ToInt32(reader["Id"]),
+                            reader["Name"].ToString(),
+                            Convert.ToDateTime(reader["CreationDate"])
+                        );
+                    }
+                    if (reader["UserId"] != DBNull.Value)
+                    {
+                        User newUser = new User
+                        {
+                            Id = Convert.ToInt32(reader["UserId"]),
+                            UserName = Convert.ToString(reader["Username"]),
+                            Name = Convert.ToString(reader["Firstname"]),
+                            Lastname = Convert.ToString(reader["Lastname"]),
+                            Birthdate = Convert.ToDateTime(reader["UserBirthDate"])
+                        };
+                        group.Users.Add(newUser);
+                    }
 
                 }
+                return group;
             }
             catch (SqliteException ex)
             {

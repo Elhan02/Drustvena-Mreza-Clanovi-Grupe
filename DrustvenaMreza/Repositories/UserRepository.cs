@@ -40,7 +40,7 @@ namespace DrustvenaMreza.Repositories
                 string[] attributes = line.Split(",");
                 int idUser = int.Parse(attributes[0]);
                 int idGropup = int.Parse(attributes[1]);
-                data[idUser].Groups.Add(GroupRepository.Data[idGropup]);               
+                //data[idUser].Groups.Add(GroupRepository.Data[idGropup]);               
             }
            
         }
@@ -49,18 +49,18 @@ namespace DrustvenaMreza.Repositories
         {
             List<string> lines = new List<string>();
             List<string> linesMemberships = new List<string>();
-            foreach (User user in data.Values)
-            {
-                lines.Add($"{user.Id},{user.UserName},{user.Name},{user.Lastname},{user.Birthdate.ToString("yyyy-MM-dd")}");
-                if (user.Groups.Count == 0)
-                {
-                    continue;
-                }
-                foreach (Group group in user.Groups) 
-                {
-                    linesMemberships.Add($"{user.Id},{group.Id}");
-                }
-            }
+            //foreach (User user in data.Values)
+            //{
+            //    lines.Add($"{user.Id},{user.UserName},{user.Name},{user.Lastname},{user.Birthdate.ToString("yyyy-MM-dd")}");
+            //    if (user.Groups.Count == 0)
+            //    {
+            //        continue;
+            //    }
+            //    foreach (Group group in user.Groups) 
+            //    {
+            //        linesMemberships.Add($"{user.Id},{group.Id}");
+            //    }
+            //}
             File.WriteAllLines(filePath, lines);
             File.WriteAllLines(clanstvaPath, linesMemberships);
         }        

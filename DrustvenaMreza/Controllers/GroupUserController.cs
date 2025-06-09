@@ -9,29 +9,27 @@ namespace DrustvenaMreza.Controllers
     [ApiController]
     public class GroupUserController : ControllerBase
     {
+        private GroupDbRepository GroupRepo { get; set; }
+        private UserDbRepository UserRepo { get; set; }
+
+        public GroupUserController(IConfiguration configuration)
+        {
+            GroupRepo = new GroupDbRepository(configuration);
+            UserRepo = new UserDbRepository(configuration);
+        }
+
         GroupRepository groupRepository = new GroupRepository();
         UserRepository userRepository = new UserRepository();
 
         [HttpGet]
         public ActionResult<List<User>> GetAll(int groupId)
         {
-            if (!GroupRepository.Data.ContainsKey(groupId))
+            Group group = GroupRepo.GetById(groupId);
+            if (group == null)
             {
                 return NotFound();
             }
-            List<User> users = UserRepository.data.Values.ToList();
-            List<User> groupUser = new List<User>();
-            foreach (User user in users)
-            {
-                foreach (Group group in user.Groups)
-                {
-                    if (group.Id == groupId)
-                    {
-                        groupUser.Add(user);
-                    }
-                }
-            }
-            return Ok(groupUser);
+            return Ok(group);
         }
 
         [HttpPut("{userId}")]
@@ -48,15 +46,15 @@ namespace DrustvenaMreza.Controllers
             Group group = GroupRepository.Data[groupId];
             User user = UserRepository.data[userId];
 
-            if (user.Groups.Contains(group))
+            if (group.Users.Contains(user))
             {
                 return Conflict();
             }
 
-            user.Groups.Add(group);
+            group.Users.Add(user);
             userRepository.Save();
 
-            return Ok(user);
+            return Ok(group);
         }
 
         [HttpDelete("{userId}")]
@@ -73,9 +71,9 @@ namespace DrustvenaMreza.Controllers
             Group group = GroupRepository.Data[groupId];
             User user = UserRepository.data[userId];
 
-            if (user.Groups.Contains(group))
+            if (group.Users.Contains(user))
             {
-                user.Groups.Remove(group);
+                group.Users.Remove(user);
             }
             userRepository.Save();
             
