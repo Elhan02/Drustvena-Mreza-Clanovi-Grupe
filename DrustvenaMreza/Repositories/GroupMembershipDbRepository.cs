@@ -53,5 +53,38 @@ namespace DrustvenaMreza.Repositories
                 throw;
             }
         }
+
+        public bool RemoveFromGroup(int groupId, int userId)
+        {
+            try
+            {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = @"DELETE FROM GroupMemberships
+                                 WHERE GroupId = @GroupId AND UserId = @UserId";
+                using SqliteCommand command = new SqliteCommand(query, connection);
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@GroupId", groupId);
+                
+                int targetRows = command.ExecuteNonQuery();
+                return targetRows > 0; 
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine("Error while connecting with database or executing SQL command: " + ex.Message);
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine("Error, connection is not open or oppened more times: " + ex.Message);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unexpected error: " + ex.Message);
+                throw;
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using DrustvenaMreza.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DrustvenaMreza.Controllers
 {
@@ -80,24 +81,33 @@ namespace DrustvenaMreza.Controllers
         [HttpDelete("{userId}")]
         public ActionResult GroupUserDelete(int groupId, int userId)
         {
-            if (!GroupRepository.Data.ContainsKey(groupId))
+            try
             {
-                return NotFound("Group not found.");
-            }
-            if (!UserRepository.data.ContainsKey(userId))
-            {
-                return NotFound("User not found.");
-            }
-            Group group = GroupRepository.Data[groupId];
-            User user = UserRepository.data[userId];
+                Group? group = GroupRepo.GetById(groupId);
+                User? user = UserRepo.GetById(userId);
 
-            if (group.Users.Contains(user))
-            {
-                group.Users.Remove(user);
+                if (group == null)
+                {
+                    return NotFound("Group not found.");
+                }
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                bool isDeleted = MembershipRepo.RemoveFromGroup(groupId, userId);
+
+                if (!isDeleted)
+                {
+                    return NotFound("User is not a part of group");
+                }
+
+                return NoContent();
             }
-            userRepository.Save();
-            
-            return NoContent();
+            catch (Exception ex)
+            {
+                return Problem("An error occurred while removing user from group.");
+            }
         }
     }
 }
