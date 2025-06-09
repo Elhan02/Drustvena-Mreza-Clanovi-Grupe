@@ -50,7 +50,7 @@ namespace DrustvenaMreza.Controllers
         {
             try
             {
-                Group group = GroupDataBase.GetById(id);
+                Group? group = GroupDataBase.GetById(id);
                 if (group == null)
                 {
                     return NotFound($"Group with ID {id} not found.");
@@ -95,7 +95,7 @@ namespace DrustvenaMreza.Controllers
             try
             {
                 uGroup.Id = id;
-                Group group = GroupDataBase.Update(uGroup);
+                Group? group = GroupDataBase.Update(uGroup);
                 if (group == null)
                 {
                     return NotFound($"Group with ID {id} not found.");
