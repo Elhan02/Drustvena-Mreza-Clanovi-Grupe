@@ -13,6 +13,46 @@ namespace DrustvenaMreza.Repositories
             this.connectionString = configuration["ConnectionStrings:SQLiteConnection"];
         }
 
+        public Post Create(Post post)
+        {
+            try
+            {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = @"INSERT INTO Posts(UserId, Content, Date)
+                            VALUES(@UserId, @Content, @Date);
+                            SELECT LAST_INSERT_ROWID();";
+                using SqliteCommand command = new SqliteCommand(query, connection);
+                command.Parameters.AddWithValue("@Content", post.Content);
+                command.Parameters.AddWithValue("@Date", post.Date.ToString("yyyy-MM-dd"));
+                command.Parameters.AddWithValue("@UserId", post.UserId);
+
+                post.Id = Convert.ToInt32(command.ExecuteScalar());
+                return post;
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Greska se desila pri konekciji ili pri izvrsavanju neispravnih SQL naredbi:{ex.Message}");
+                throw;
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Konekcija je otvorena vise puta ili nije otvorena: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Neocekivana greska: {ex.Message}");
+                throw;
+            }
+        }
+
         public List<Post> GetAll()
         {
             try
@@ -25,6 +65,7 @@ namespace DrustvenaMreza.Repositories
                             FROM Posts p
                             INNER JOIN Users u on p.UserId = u.Id
                             ORDER BY u.Id";
+
                 using SqliteCommand command = new SqliteCommand(query, connection);
 
                 using SqliteDataReader reader = command.ExecuteReader();
