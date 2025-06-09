@@ -29,6 +29,6 @@ namespace DrustvenaMreza.Controllers
             {
                 return Problem("An error occured while fetching posts.");
             }
-        }
+        }        
     }
 }

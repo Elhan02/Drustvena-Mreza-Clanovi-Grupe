@@ -19,7 +19,7 @@ namespace DrustvenaMreza.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public ActionResult GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page < 1 || pageSize < 1)
             {
