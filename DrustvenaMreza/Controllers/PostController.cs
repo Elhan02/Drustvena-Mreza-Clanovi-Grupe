@@ -29,6 +29,23 @@ namespace DrustvenaMreza.Controllers
             {
                 return Problem("An error occured while fetching posts.");
             }
-        }        
+        }
+        [HttpDelete("{postId}")]
+        public ActionResult Delete(int postId) 
+        {
+            try
+            {
+                bool deletePost = postDBRepository.Delete(postId); ;
+                if (!deletePost)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occured while deleting post.");
+            }
+        }
     }
 }

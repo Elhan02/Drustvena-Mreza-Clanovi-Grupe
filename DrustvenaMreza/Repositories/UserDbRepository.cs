@@ -41,22 +41,22 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili izvrsavanju neispravnih SQL naredbi: {ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze podataka: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija nije otvorena ili je otvorena vise puta: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska:{ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
             return users;
@@ -90,22 +90,22 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se desila pri konekciji ili pri izvrsavanju neispravnih SQL naredbi:{ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija je otvorena vise puta ili nije otvorena: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska: {ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
         }
@@ -131,22 +131,22 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se desila pri konverziji podataka iz baze: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija nije otvorena ili je otvorena vise puta: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska: {ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
         }
@@ -171,25 +171,24 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska{ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
-            return null;
         }
 
         public bool Delete(int id)
@@ -209,22 +208,22 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska{ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
         }
@@ -245,22 +244,22 @@ namespace DrustvenaMreza.Repositories
             }
             catch (SqliteException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konekciji ili pri izvrsavanju nesipravnih SQL naredbi: {ex.Message}");
+                Console.WriteLine($"An error occured while connecting or executing invalid SQL statements: {ex.Message}");
                 throw;
             }
             catch (FormatException ex)
             {
-                Console.WriteLine($"Greska se dogodila pri konverziji podataka iz baze: {ex.Message}");
+                Console.WriteLine($"An error occurred while converting data from the database: {ex.Message}");
                 throw;
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Konekcija nije otvorena ili je vise puta otvorena: {ex.Message}");
+                Console.WriteLine($"Connection is not open or is open more than one time: {ex.Message}");
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Neocekivana greska{ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
         }
