@@ -157,7 +157,7 @@ namespace DrustvenaMreza.Repositories
                 using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "UPDATE Users SET  = @Username, Name = @Name, Surname = @Surname, Birthday = @Birthday WHERE Id = @Id";
+                string query = "UPDATE Users SET  Username = @Username, Name = @Name, Surname = @Surname, Birthday = @Birthday WHERE Id = @Id";
                 using SqliteCommand command = new SqliteCommand(query, connection);
 
                 command.Parameters.AddWithValue("@Id", uUser.Id);
